@@ -21,7 +21,9 @@ var CONFIG = require('../config'),
  * configure the email provider
  */
 var transporter = nodemailer.createTransport({
-  service: "Gmail",
+  host: "smtp.163.com",
+  port: 465,
+  secure: true, // true for 465, false for other ports
   auth: {
     user: CONFIG.email.username,
     pass: CONFIG.email.password
@@ -37,7 +39,7 @@ function getUrl( ) {
   if (process.env.OPENSHIFT_APP_DNS) {
     url = 'https://' + process.env.OPENSHIFT_APP_DNS;
   } else {
-    url =   'http://127.0.0.1:8080';
+    url =   'http://bhhealth.jios.org:32700';
   }
   return url;
 }

@@ -21,11 +21,11 @@ var Mongoose = require('mongoose'),
 * ## Default the connection string to the development envionment
 *
 */
-var connection_string = Config.mongodb.ip
-      + ':'
-      +  Config.mongodb.port
-      + '/'
-      + Config.mongodb.app;
+var connection_string =  Config.mongodb.username + ":" +
+      Config.mongodb.password + "@" +
+      Config.mongodb.host + ':' +
+      Config.mongodb.port + '/' +
+      Config.mongodb.db;
 
 /**
 * ## Set the connection string for the OpenShift environment 

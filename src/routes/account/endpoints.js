@@ -14,10 +14,10 @@
  */
 //Handle the endpoints
 var AccountHandlers = require('./handlers'),
-    //The static configurations
-    CONFIG = require('../../config'),
-    //Joi is Hapi's validation library
-    Joi = require('joi');
+  //The static configurations
+  CONFIG = require('../../config'),
+  //Joi is Hapi's validation library
+  Joi = require('joi');
 
 var internals = {};
 /**
@@ -40,14 +40,14 @@ internals.endpoints = [
       description: 'Register user',
       notes: 'The user registration generates an email for verification',
       validate: {
-	payload: {
+        payload: {
           //username required with same regex as client
-	  username: Joi.string().regex(CONFIG.validation.username).required(),
+          username: Joi.string().regex(CONFIG.validation.username).required(),
           //password required with same regex as client          
-	  password: Joi.string().regex(CONFIG.validation.password).required(),
+          password: Joi.string().regex(CONFIG.validation.password).required(),
           //email required
-	  email: Joi.string().email().required()
-	}
+          email: Joi.string().email().required()
+        }
       }
     }
   },
@@ -61,12 +61,12 @@ internals.endpoints = [
       description: 'A user can login',
       notes: 'The user login will return a sessionToken',
       validate: {
-	payload: {
+        payload: {
           //username required with same regex as client          
-	  username: Joi.string().regex(CONFIG.validation.username).required(),
+          username: Joi.string().regex(CONFIG.validation.username).required(),
           //password required with same regex as client
-	  password: Joi.string().regex(CONFIG.validation.password).required()
-	}
+          password: Joi.string().regex(CONFIG.validation.password).required()
+        }
       }
     }
   },
@@ -84,7 +84,7 @@ internals.endpoints = [
       validate: {
         headers: Joi.object({
           'Authorization': Joi.string()
-        }).unknown()      
+        }).unknown()
       }
     }
   },
@@ -114,11 +114,11 @@ internals.endpoints = [
       description: 'User requests to reset password',
       notes: 'Email is sent to email address provided',
       validate: {
-	payload: {
+        payload: {
           //email required
-	  email: Joi.string().email().required()          
-	}
-      }      
+          email: Joi.string().email().required()
+        }
+      }
 
     }
   },
@@ -138,15 +138,15 @@ internals.endpoints = [
       description: 'User posts new password',
       notes: 'Password form posts new password',
       validate: {
-	payload: {
+        payload: {
           //password required with same regex as client          
-	  password: Joi.string().regex(CONFIG.validation.password).required(),
+          password: Joi.string().regex(CONFIG.validation.password).required(),
           //email required
-	  token: Joi.string().required()          
-	}
-      }      
+          token: Joi.string().required()
+        }
+      }
 
-    }    
+    }
   },
   {
     method: 'GET',
@@ -156,12 +156,12 @@ internals.endpoints = [
       auth: 'token',
       tags: ['api'],
       description: 'Get the current users profile',
-      notes: 'The user has username, email and emailVerified',      
+      notes: 'The user has username, email and emailVerified',
       validate: {
         headers: Joi.object({
           'Authorization': Joi.string()
-        }).unknown()      
-      }      
+        }).unknown()
+      }
     }
   },
   {
@@ -176,17 +176,17 @@ internals.endpoints = [
       validate: {
         payload: {
           //email required          
-	  email: Joi.string().email().required(),
+          email: Joi.string().email().required(),
           //username required          
-	  username: Joi.string().regex(CONFIG.validation.username).required()
-	},
+          username: Joi.string().regex(CONFIG.validation.username).required()
+        },
         params: {
           _id: Joi.string().required()
-        },        
+        },
         headers: Joi.object({
           'Authorization': Joi.string()
-        }).unknown()      
-      }      
+        }).unknown()
+      }
     }
   },
 
