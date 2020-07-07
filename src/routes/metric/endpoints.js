@@ -21,7 +21,7 @@ var internals = {};
 internals.endpoints = [
   {
     method: 'POST',
-    path: '/metrics/query',
+    path: '/metrics/{measurement}',
     handler: MetricHandlers.queryMetric,
     config: {
       tags: ['api'],
@@ -32,8 +32,8 @@ internals.endpoints = [
   },
   {
     method: 'POST',
-    path: '/metrics/add',
-    handler: MetricHandlers.saveMetric,
+    path: '/ppg/metrics',
+    handler: MetricHandlers.savePPGMetric,
     config: {
       tags: ['api'],
       description: 'Save sensor metrics',

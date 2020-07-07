@@ -16,121 +16,64 @@
 'use strict';
 
 var Boom = require('boom'),
+  request = require('request'),
   // our configuration
   CONFIG = require('../../config'),
   InfluxdbClient = require('@influxdata/influxdb-client');
 
-const bucket = `${CONFIG.influxdb.database}/${CONFIG.influxdb.retentionPolicy}`
-const clientOptions = {
-  url: `http://${CONFIG.influxdb.host}:${CONFIG.influxdb.port}`,
-  token: `${CONFIG.influxdb.username}:${CONFIG.influxdb.password}`
-}
-const influxDB = new InfluxdbClient.InfluxDB(clientOptions);
+var baseUrl = `http://${CONFIG.backend.host}:${CONFIG.backend.port}`
 
 var internals = {};
 /**
- * ## saveMetric
- * {
- *   ppg_raw:{
- *      deviceId:'', //uuid of device
- *      patientId:'', //userid if not exist
- *      startTime:'', //milissencod since 1970
- *      endTime:'', //milissencod since 1970
- *      freq:'',
- *      raws:[[]] //multiple lines, one line in an element
- *   }
- * }
- * authentication
+ '''
+       { 
+        "measurement":"",
+        "tags":{"deviceId":"","patientId":""},
+        "time":{"start":1231234, "end": 12312323},
+        "freq": 50,
+        "raws":[[]]
+       }
+    '''
  */
-internals.saveMetric = function (req, reply) {
-  const writeAPI = influxDB.getWriteApi('', bucket, 'ms');
-  let content = req.payload;
-  if (content['ppg_raw']) {
-    let ppg = content['ppg_raw'];
-    let startTime = ppg['startTime'];
-    let endTime = ppg['endTime'];
-    let freq = ppg['freq']
-    let raws = ppg['raws']
-    let scale = 1000 / freq;
-    let points = []
-    //raws data to points
-    for (const ri in raws) {
-      let oneLine = raws[ri]
-      for (const di in oneLine) {
-        let nt = startTime + di * scale;
-        let np = new InfluxdbClient.Point('ppg_row').tag('line', ri)
-          .tag('deviceId', ppg['deviceId'])
-          .tag('patientId', ppg['patientId'])
-          .floatField('value', oneLine[di])
-          .timestamp(new Date(nt))
-        points.push(np)
-      }
-    }
-    //write points to db
-    writeAPI.writePoints(points);
-    writeAPI
-      .close()
-      .then(() => reply({ status: "ok" }))
-      .catch(err => {
-        console.error(err)
+internals.savePPGMetric = function (req, reply) {
+  let headers = {};
+  headers['Content-Type'] = 'application/json';
+  let url = `${baseUrl}/ppg/metrics`;
+  request.post(url, {
+    headers: headers,
+    body: JSON.stringify(req.payload)
+  },
+    function (err, resp, body) {
+      if (err) {
         return reply(Boom.badImplementation(err));
-      })
-  } else {
-    reply({ status: "no_data" })
-  }
+      }
+      reply(JSON.parse(body))
+    });
 };
 
 /**
  * ## queryMetric - you can only reach here if you've passed
- * {
- *   measurement: "ppg_raw",
- *   tags: {deviceId: "", patientId: "", line: ""}
- *   duration: {
- *     start: "",
- *     stop: ""
- *   }
- *   "field ": "value"
- * }
+{
+         "fields":"",
+         "condition":""
+       }
  */
 internals.queryMetric = function (req, reply) {
-  const queryAPI = influxDB.getQueryApi('')
-  let content = req.payload;
-  let measurement = content['measurement'];
-  let rangestr = `range(start: -1m)`
-  if (content['duration']) {
-    let duration = content['duration']
-    rangestr = `range(start: ${duration["start"]}, stop: ${duration["stop"]})`
-  }
-  let tagstr = ""
-  if (content['tags']) {
-    let tags = content['tags'];
-    for (var tag in tags) {
-      tagstr = `${tagstr} and r.${tag} == "${tags[tag]}"`
-    }
-  }
-  var filedstr = ""
-  if (content['field']) {
-    filedstr = `r._field == "${content['field']}"`
-  }
-  const query = `from(bucket:"${bucket}")
-  |> ${rangestr}
-  |> filter(fn: (r) =>
-    r._measurement == "${measurement}" ${tagstr}
-  )
-  |> filter(fn: (r) =>
-    ${filedstr}
-  )
-  `
-  console.log("query ", query)
-  queryAPI.collectRows(query).then((result) => {
-    let rs = result.map( (item) => {
-      return {time: item._time , value : item._value} 
-    })
-    reply(rs)
-  }).catch((err) => {
-    console.error(err)
-    return reply(Boom.badImplementation(err));
-  })
+  let headers = {};
+  headers['Content-Type'] = 'application/json';
+  let url = `${baseUrl}/metrics/${req.params.measurement}`
+  
+  request.post(url, {
+    headers: headers,
+    body: JSON.stringify(req.payload)
+  },
+    function (err, resp, body) {
+      console.log('get response')
+      if (err) {
+        return reply(Boom.badImplementation(err));
+      }
+      reply(JSON.parse(body))
+    });
 };
 
 module.exports = internals;
