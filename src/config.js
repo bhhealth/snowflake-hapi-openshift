@@ -4,6 +4,7 @@ const REDIS_HOST = process.env.REDIS_HOST||'183.129.176.218';
 const REDIS_PORT = process.env.REDIS_PORT||'6379';
 const BACKEND_HOST = process.env.REDIS_HOST||'localhost';
 const BACKEND_PORT = process.env.BACKEND_PORT||'3010';
+const API_PORT = process.env.API_PORT||"3001";
 
 module.exports = {
   backend: {
@@ -39,7 +40,7 @@ module.exports = {
     //password: /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,12}$/
   },
   hapi: {
-    port: 8080,
+    port: API_PORT,
     ip: '0.0.0.0'
   }
 };
