@@ -18,8 +18,7 @@
 var Boom = require('boom'),
   request = require('request'),
   // our configuration
-  CONFIG = require('../../config'),
-  InfluxdbClient = require('@influxdata/influxdb-client');
+  CONFIG = require('../../config');
 
 var baseUrl = `http://${CONFIG.backend.host}:${CONFIG.backend.port}`
 
@@ -36,16 +35,32 @@ var internals = {};
     '''
  */
 internals.savePPGMetric = function (req, reply) {
+  console.log("username", req.auth.credentials.username);
   let headers = {};
   headers['Content-Type'] = 'application/json';
   let url = `${baseUrl}/ppg/metrics`;
+  let payload = {
+    "measurement": "ppg_raw",
+    "tags": {
+      "deviceId": req.payload.deviceId,
+      "patientId": req.auth.credentials.username
+    },
+    "time": {
+      "start": req.payload.time,
+    },
+    "freq": req.payload.freq,
+    "raws": req.payload.raws
+  }
   request.post(url, {
     headers: headers,
-    body: JSON.stringify(req.payload)
+    body: JSON.stringify(payload)
   },
     function (err, resp, body) {
       if (err) {
         return reply(Boom.badImplementation(err));
+      }
+      if (resp.statusCode != 200) {
+        return reply(Boom.badData(resp.body));
       }
       reply(JSON.parse(body))
     });
@@ -59,18 +74,30 @@ internals.savePPGMetric = function (req, reply) {
        }
  */
 internals.queryMetric = function (req, reply) {
+  console.log("username", req.auth.credentials.username);
   let headers = {};
   headers['Content-Type'] = 'application/json';
   let url = `${baseUrl}/metrics/${req.params.measurement}`
-  
+
+  let payload = {
+    fields: "value"
+  };
+  //deviceId='device2' and patientId='p2'
+  payload.condition = req.payload.condition +
+    ` and deviceId='${req.payload.deviceId}' and patientId='${req.auth.credentials.username}'`
+  console.log("url", url)
+  console.log("payload", payload)
   request.post(url, {
     headers: headers,
-    body: JSON.stringify(req.payload)
+    body: JSON.stringify(payload)
   },
     function (err, resp, body) {
       console.log('get response')
       if (err) {
         return reply(Boom.badImplementation(err));
+      }
+      if (resp.statusCode != 200) {
+        return reply(Boom.badData(resp.body));
       }
       reply(JSON.parse(body))
     });

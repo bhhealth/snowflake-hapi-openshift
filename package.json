@@ -27,7 +27,6 @@
     "docs": "./node_modules/docker/docker -w -I -x node_modules -s yes -o ../snowflake-hapi-openshift-pages "
   },
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.4.0",
     "boom": "^3.1.1",
     "good": "^6.4.0",
     "good-console": "^5.2.0",

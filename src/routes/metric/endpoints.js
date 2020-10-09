@@ -4,6 +4,7 @@
  */
 'use strict';
 
+const Joi = require('joi');
 /**
 * ## Imports
 *
@@ -27,7 +28,13 @@ internals.endpoints = [
       tags: ['api'],
       description: 'Get sensor metrics',
       notes: 'Metrics queried with devicename and measurementname',
-      auth: 'token'
+      auth: 'token',
+      validate: {
+        payload: {
+          deviceId: Joi.string().required(),
+          condition: Joi.string().required()
+        }
+      }
     }
   },
   {
@@ -38,7 +45,15 @@ internals.endpoints = [
       tags: ['api'],
       description: 'Save sensor metrics',
       notes: 'Metrics with timestamp, multiple datapoints supported',
-      auth: 'token'
+      auth: 'token',
+      validate: {
+        payload: {
+          deviceId: Joi.string().required(),
+          time: Joi.number().integer().required(),
+          freq: Joi.number().integer().required(),
+          raws: Joi.array().required()
+        }
+      }
     }
   }
 ];
