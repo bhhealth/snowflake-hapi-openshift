@@ -1,3 +1,5 @@
+#!/bin/sh
+
 export MONGO_HOST='localhost'
 export REDIS_PORT='localhost'
 export BACKEND_HOST='localhost'
